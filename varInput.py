@@ -178,7 +178,7 @@ class Ui_MainWindow(object):
                 self.vars.add(txt)
         
         if len(erroredNames)==0:
-            self.label_errorVarName.setText("created, check the code.txt file")
+            self.label_errorVarName.setText("created, was inserted to your clipboard.")
             self.createInit()
         else:
             self.label_errorVarName.setText(f"variables with illigal names are: "+",".join(erroredNames))
@@ -186,13 +186,9 @@ class Ui_MainWindow(object):
 
     #creates the __init__
     def createInit(self):
-        with open("code.txt","w") as f:
-            self.strRes+=f"    def __init__(self,{','.join(self.vars)}):\n"
-            f.write(f"    def __init__(self,{','.join(self.vars)}):\n")
-            for var in self.vars:
-                self.strRes+=f"        self.{var}={var}\n"
-                f.write(f"        self.{var}={var}\n")
-        
+        self.strRes+=f"    def __init__(self,{','.join(self.vars)}):\n"
+        for var in self.vars:
+                self.strRes+=f"        self.{var}={var}\n"    
         self.createSetGet()
     
     def createSetGet(self):
@@ -202,46 +198,28 @@ class Ui_MainWindow(object):
         else:
             isPrivateMethods=""
 
-        with open("code.txt","a") as f:
-            for i in range(1,len(self.vars)+1):
-                txt=self.MainWindow.findChild(QtWidgets.QLineEdit, f"lineEdit_varName{i}").text()
+        for i in range(1,len(self.vars)+1):
+            txt=self.MainWindow.findChild(QtWidgets.QLineEdit, f"lineEdit_varName{i}").text()
 
-                #create the setter
-                setName=f"{isPrivateMethods}set{txt.capitalize()}"
-                self.strRes+=f"\n    def {setName}(self,{txt}):\n"
-                
-                f.write(f"\n    def {setName}(self,{txt}):\n")
-                if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                    self.strRes+=f"        self.__{txt}={txt}\n"
-                    f.write(f"        self.__{txt}={txt}\n")
-                else:
-                    self.strRes+=f"        self.{txt.capitalize()}={txt}\n"
-                    f.write(f"        self.{txt.capitalize()}={txt}\n")
+            #create the setter
+            setName=f"{isPrivateMethods}set{txt.capitalize()}"
+            self.strRes+=f"\n    def {setName}(self,{txt}):\n"
+            if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
+                self.strRes+=f"        self.__{txt}={txt}\n"
+            else:
+                self.strRes+=f"        self.{txt.capitalize()}={txt}\n"
 
-                #create the getter
-                getName=f"{isPrivateMethods}get{txt.capitalize()}"
-                self.strRes+=f"\n    def {getName}(self):\n"
+            #create the getter
+            getName=f"{isPrivateMethods}get{txt.capitalize()}"
+            self.strRes+=f"\n    def {getName}(self):\n"
 
-                f.write(f"\n    def {getName}(self):\n")
-                if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                    self.strRes+=f"        return self.__{txt}\n"
-                    f.write(f"        return self.__{txt}\n")
-                else:
-                    self.strRes+=f"        return self.{txt.capitalize()}\n"
-                    f.write(f"        return self.{txt.capitalize()}\n")
-                
-                #create the property
-                self.strRes+=f"    {txt}=property({getName},{setName})\n"
-                f.write(f"    {txt}=property({getName},{setName})\n")
+            if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
+                self.strRes+=f"        return self.__{txt}\n"
+            else:
+                self.strRes+=f"        return self.{txt.capitalize()}\n"
             
-            self.clipBoard.setText(self.strRes)
+            #create the property
+            self.strRes+=f"    {txt}=property({getName},{setName})\n"
+            
+            self.clipBoard.setText(self.strRes) #add to clipboard
         
-
-
-#add a back button
-#TODO: add the text to clipboard
-#TODO: make a window to show result
-#TODO: make it a runable app
-#TODO: set icon to the app
-
-# self.clipBoard.setText("aafasf") <<<<<<worked

@@ -1,17 +1,17 @@
-    def __init__(self,y,x):
-        self.y=y
-        self.x=x
+    def __init__(self,b,a):
+        self.b=b
+        self.a=a
 
-    def setX(self,x):
-        self.__x=x
+    def setA(self,a):
+        self.A=a
 
-    def getX(self):
-        return self.__x
-    x=property(getX,setX)
+    def getA(self):
+        return self.A
+    a=property(getA,setA)
 
-    def setY(self,y):
-        self.__y=y
+    def setB(self,b):
+        self.B=b
 
-    def getY(self):
-        return self.__y
-    y=property(getY,setY)
+    def getB(self):
+        return self.B
+    b=property(getB,setB)
