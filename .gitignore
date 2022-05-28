@@ -1,4 +1,7 @@
 __pycache__/
 code.txt
 setup.py
+Archive.zip
 .eggs/
+build
+dist

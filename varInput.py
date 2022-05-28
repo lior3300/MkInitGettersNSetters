@@ -9,25 +9,40 @@ class Ui_MainWindow(object):
         self.vars=set()
         self.clipBoard=clipboard
         self.MainWindow=MainWindow
-        self.strRes=""
+        # self.strRes=""
 
     def setupUi(self):
         self.MainWindow.setObjectName("MainWindow")
-        self.MainWindow.resize(505, 280)
-        self.MainWindow.setMinimumSize(QtCore.QSize(505, 280))
-        self.MainWindow.setMaximumSize(QtCore.QSize(505, 280))
+        self.MainWindow.resize(505, 400)
+        self.MainWindow.setMinimumSize(QtCore.QSize(505, 400))
+        self.MainWindow.setMaximumSize(QtCore.QSize(505, 400))
         self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.checkBox_gettersNsetters = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox_gettersNsetters.setGeometry(QtCore.QRect(70, 10, 371, 51))
+        self.checkBox_gettersNsetters.setGeometry(QtCore.QRect(70, 60, 371, 51))
         font = QtGui.QFont()
         font.setPointSize(22)
         font.setBold(True)
         font.setWeight(75)
         self.checkBox_gettersNsetters.setFont(font)
         self.checkBox_gettersNsetters.setObjectName("checkBox_gettersNsetters")
+
+        self.label_info = QtWidgets.QLabel(self.centralwidget)
+        self.label_info.setGeometry(QtCore.QRect(60, 10, 360, 51))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(False)
+        font.setItalic(True)
+        font.setWeight(50)
+        font.setStrikeOut(False)
+        self.label_info.setFont(font)
+        self.label_info.setObjectName("label_info")
+        self.label_info.setText(" first char of variable must be a lowercase letter [a-Z]\
+            \n next letters can by any of: _ [a-z] or [A-Z]\
+            \n make sure not to repate variable names.")
+
         self.pushButton_create = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_create.setGeometry(QtCore.QRect(260, 190, 113, 32))
+        self.pushButton_create.setGeometry(QtCore.QRect(260, 300, 113, 32))
         font = QtGui.QFont()
         font.setPointSize(16)
         font.setBold(True)
@@ -36,15 +51,15 @@ class Ui_MainWindow(object):
         self.pushButton_create.setObjectName("pushButton_create")
         
         self.pushButton_back = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_back.setGeometry(QtCore.QRect(120, 190, 113, 32))
+        self.pushButton_back.setGeometry(QtCore.QRect(120, 300, 113, 32))
         self.pushButton_back.setFont(font)
         self.pushButton_back.setObjectName("pushButton_back")
 
         self.pushButton_create.clicked.connect(lambda:self.checkLineEdits())
-        self.pushButton_back.clicked.connect(lambda:mnwin.Ui_MainWindow(self.MainWindow).startMain())
+        self.pushButton_back.clicked.connect(lambda:mnwin.Ui_MainWindow(self.MainWindow,self.clipBoard).startMain())
 
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setGeometry(QtCore.QRect(0, 60, 501, 121))
+        self.scrollArea.setGeometry(QtCore.QRect(0, 110, 501, 171))
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
@@ -85,6 +100,8 @@ class Ui_MainWindow(object):
 
         #endregion
 
+        font = QtGui.QFont()
+        font.setPointSize(16)
         #region activly creating the components
         for i in range(1,self.varNums+1):
             #create new horizontal layout
@@ -93,8 +110,6 @@ class Ui_MainWindow(object):
 
             #add to the horizontal layout the lable
             self.label_varName = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-            font = QtGui.QFont()
-            font.setPointSize(16)
             self.label_varName.setFont(font)
             self.label_varName.setObjectName(f"label_varName{i}")
             self.label_varName.setText(f"variable No.{i} name:")
@@ -120,7 +135,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_11.addLayout(self.verticalLayout)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.label_errorVarName = QtWidgets.QLabel(self.centralwidget)
-        self.label_errorVarName.setGeometry(QtCore.QRect(20, 220, 470, 20))
+        self.label_errorVarName.setGeometry(QtCore.QRect(20, 340, 470, 20))
         self.label_errorVarName.setObjectName("label_errorVarName")
         self.MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(self.MainWindow)
@@ -164,15 +179,15 @@ class Ui_MainWindow(object):
             #           ends with those in [] ($)
             #endregion
             #
-            regex="^([a-zA-Z])+[_a-zA-Z]*$"
-            # this is if i want to let the user choose to use 1 underscore
+            regex="^([a-z])+[_a-zA-Z]*$"
+            # this is if i want to let the user choose to use 1 underscore or to start with A-Z
             # choose pattern by if private was chosen, let to use _ at the begining of var name if not private
             # if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
             #     regex="^([a-zA-Z])+[_a-zA-Z]*$"
             # else:
             #     regex="^(_{0,1}[a-zA-Z])+[_a-zA-Z]*$"
 
-            if not bool(re.match(regex,txt)):
+            if not bool(re.match(regex,txt)) or txt in self.vars:
                 erroredNames+=[f"No.{i}"]
             else:
                 self.vars.add(txt)
@@ -181,17 +196,18 @@ class Ui_MainWindow(object):
             self.label_errorVarName.setText("created, was inserted to your clipboard.")
             self.createInit()
         else:
-            self.label_errorVarName.setText(f"variables with illigal names are: "+",".join(erroredNames))
+            self.label_info.setStyleSheet("background-color: #ff4a57")
+            self.label_errorVarName.setText(f"variables with illegal names are: "+",".join(erroredNames))
 
 
     #creates the __init__
     def createInit(self):
-        self.strRes+=f"    def __init__(self,{','.join(self.vars)}):\n"
+        strRes=f"    def __init__(self,{','.join(self.vars)}):\n"
         for var in self.vars:
-                self.strRes+=f"        self.{var}={var}\n"    
-        self.createSetGet()
+                strRes+=f"        self.{var}={var}\n"    
+        self.createSetGet(strRes)
     
-    def createSetGet(self):
+    def createSetGet(self,strRes):
         #check if getters/setters were set to private
         if self.MainWindow.findChild(QtWidgets.QCheckBox, "checkBox_gettersNsetters").isChecked():
             isPrivateMethods="__"
@@ -203,23 +219,23 @@ class Ui_MainWindow(object):
 
             #create the setter
             setName=f"{isPrivateMethods}set{txt.capitalize()}"
-            self.strRes+=f"\n    def {setName}(self,{txt}):\n"
+            strRes+=f"\n    def {setName}(self,{txt}):\n"
             if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                self.strRes+=f"        self.__{txt}={txt}\n"
+                strRes+=f"        self.__{txt}={txt}\n"
             else:
-                self.strRes+=f"        self.{txt.capitalize()}={txt}\n"
+                strRes+=f"        self.{txt.capitalize()}={txt}\n"
 
             #create the getter
             getName=f"{isPrivateMethods}get{txt.capitalize()}"
-            self.strRes+=f"\n    def {getName}(self):\n"
+            strRes+=f"\n    def {getName}(self):\n"
 
             if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                self.strRes+=f"        return self.__{txt}\n"
+                strRes+=f"        return self.__{txt}\n"
             else:
-                self.strRes+=f"        return self.{txt.capitalize()}\n"
+                strRes+=f"        return self.{txt.capitalize()}\n"
             
             #create the property
-            self.strRes+=f"    {txt}=property({getName},{setName})\n"
+            strRes+=f"    {txt}=property({getName},{setName})\n"
             
-            self.clipBoard.setText(self.strRes) #add to clipboard
+            self.clipBoard.setText(strRes) #add to clipboard
         

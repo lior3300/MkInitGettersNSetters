@@ -11,6 +11,8 @@ class Ui_MainWindow(object):
     def setupUi(self):
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(450, 250)
+        self.MainWindow.setMinimumSize(QtCore.QSize(450, 250))
+        self.MainWindow.setMaximumSize(QtCore.QSize(450, 250))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -79,7 +81,7 @@ class Ui_MainWindow(object):
         
 
     def openVarInputWindow(self):
-        if self.lineEdit_varNum.text().isdigit():
+        if self.lineEdit_varNum.text().isdigit() and int(self.lineEdit_varNum.text())>0:
             ui=vrnpt.Ui_MainWindow(self.MainWindow,int(self.lineEdit_varNum.text()),self.clipBoard)
             ui.startVarInput()
         else:
