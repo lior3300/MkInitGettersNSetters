@@ -1,0 +1,17 @@
+    def __init__(self,y,x):
+        self.y=y
+        self.x=x
+
+    def setX(self,x):
+        self.__x=x
+
+    def getX(self):
+        return self.__x
+    x=property(getX,setX)
+
+    def setY(self,y):
+        self.__y=y
+
+    def getY(self):
+        return self.__y
+    y=property(getY,setY)
