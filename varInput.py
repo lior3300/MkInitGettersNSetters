@@ -219,11 +219,13 @@ class Ui_MainWindow(object):
             if self.isSuper:
                 if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_Inheritance{i}").isChecked():
                     strSuperVars.append(var)
-                # strRes+=f"        super().__init__({var})"
                 else:
                     strSelfVars+=f"        self.{var}={var}\n"
-
-        strRes+="        super().__init__("+",".join(strSuperVars)+")\n"
+            else:
+                    strSelfVars+=f"        self.{var}={var}\n"
+                    
+        if self.isSuper:
+            strRes+="        super().__init__("+",".join(strSuperVars)+")\n"
         strRes+=strSelfVars 
         self.createSetGet(strRes)
     
@@ -237,7 +239,12 @@ class Ui_MainWindow(object):
         for i in range(1,len(self.vars)+1):
             txt=self.MainWindow.findChild(QtWidgets.QLineEdit, f"lineEdit_varName{i}").text()
 
-            if not self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_Inheritance{i}").isChecked():
+            try:
+                varSuper=self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_Inheritance{i}").isChecked()
+            except:
+                varSuper=False
+
+            if not varSuper:
                 #create the setter
                 setName=f"{isPrivateMethods}set{txt.capitalize()}"
                 strRes+=f"\n    def {setName}(self,{txt}):\n"
