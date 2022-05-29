@@ -21,8 +21,18 @@ class Ui_MainWindow(object):
         self.MainWindow.setMinimumSize(QtCore.QSize(450, 250))
         self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        self.checkBox_Inheritance = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox_Inheritance.setGeometry(QtCore.QRect(40, 50, 371, 51))
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.checkBox_Inheritance.setFont(font)
+        self.checkBox_Inheritance.setObjectName("checkBox_Inheritance")
+
         self.pushButton_start = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_start.setGeometry(QtCore.QRect(180, 140, 113, 32))
+        self.pushButton_start.setGeometry(QtCore.QRect(180, 160, 113, 32))
         font = QtGui.QFont()
         font.setPointSize(18)
         font.setBold(True)
@@ -34,13 +44,13 @@ class Ui_MainWindow(object):
         self.pushButton_start.clicked.connect(lambda:self.openVarInputWindow())
 
         self.lineEdit_varNum = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_varNum.setGeometry(QtCore.QRect(310, 70, 50, 40))
+        self.lineEdit_varNum.setGeometry(QtCore.QRect(310, 100, 50, 40))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.lineEdit_varNum.setFont(font)
         self.lineEdit_varNum.setObjectName("lineEdit_varNum")
         self.label_valNum = QtWidgets.QLabel(self.centralwidget)
-        self.label_valNum.setGeometry(QtCore.QRect(30, 80, 250, 30))
+        self.label_valNum.setGeometry(QtCore.QRect(30, 110, 250, 30))
         font = QtGui.QFont()
         font.setPointSize(26)
         font.setBold(False)
@@ -75,6 +85,7 @@ class Ui_MainWindow(object):
         self.MainWindow.setWindowTitle(_translate("MainWindow", "initMaker"))
         self.pushButton_start.setText(_translate("MainWindow", "start"))
         self.label_valNum.setText(_translate("MainWindow", "how many variables?"))
+        self.checkBox_Inheritance.setText(_translate("MainWindow", " does the class inherent from other class?"))
         self.lineEdit_varNum.setText("1")
         self.label_info.setText(_translate("MainWindow", "This program creates an __init__ function and\n"
                                 "properties for the variables."))
@@ -82,7 +93,10 @@ class Ui_MainWindow(object):
 
     def openVarInputWindow(self):
         if self.lineEdit_varNum.text().isdigit() and int(self.lineEdit_varNum.text())>0:
-            ui=vrnpt.Ui_MainWindow(self.MainWindow,int(self.lineEdit_varNum.text()),self.clipBoard)
+            ui=vrnpt.Ui_MainWindow(self.MainWindow,
+            int(self.lineEdit_varNum.text()),
+            self.clipBoard,
+            self.checkBox_Inheritance.isChecked())
             ui.startVarInput()
         else:
             self.label_info.setStyleSheet("background-color: #ff4a57")

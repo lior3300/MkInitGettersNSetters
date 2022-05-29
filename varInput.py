@@ -4,11 +4,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
 
-    def __init__(self,MainWindow,varNums,clipboard) -> None:
+    def __init__(self,MainWindow,varNums,clipboard,isSuper) -> None:
         self.varNums=varNums
-        self.vars=set()
+        self.vars=list()
         self.clipBoard=clipboard
         self.MainWindow=MainWindow
+        self.isSuper=isSuper
         # self.strRes=""
 
     def setupUi(self):
@@ -128,6 +129,14 @@ class Ui_MainWindow(object):
             self.checkBox_valPrivete.setText("private")
             self.horizontalLayout_varNames.addWidget(self.checkBox_valPrivete)
 
+            #if the class has super add the checkbox to the layout
+            if self.isSuper:
+                self.checkBox_Inheritance = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
+                self.checkBox_Inheritance.setFont(font)
+                self.checkBox_Inheritance.setObjectName(f"checkBox_Inheritance{i}")
+                self.checkBox_Inheritance.setText("super")
+                self.horizontalLayout_varNames.addWidget(self.checkBox_Inheritance)
+
             #add the the horizontal layout the main verticalLayout of the scrollArea
             self.verticalLayout.addLayout(self.horizontalLayout_varNames)
         #endregion
@@ -164,7 +173,7 @@ class Ui_MainWindow(object):
 
     #checks if all the variable names that given are lagel
     def checkLineEdits(self):
-        self.vars=set()
+        self.vars=list()
         erroredNames=[]
         for i in range(1,self.varNums+1):
             txt=self.MainWindow.findChild(QtWidgets.QLineEdit, f"lineEdit_varName{i}").text()
@@ -190,7 +199,7 @@ class Ui_MainWindow(object):
             if not bool(re.match(regex,txt)) or txt in self.vars:
                 erroredNames+=[f"No.{i}"]
             else:
-                self.vars.add(txt)
+                self.vars.append(txt)
         
         if len(erroredNames)==0:
             self.label_errorVarName.setText("created, was inserted to your clipboard.")
@@ -202,9 +211,20 @@ class Ui_MainWindow(object):
 
     #creates the __init__
     def createInit(self):
+        strSelfVars=""
+        strSuperVars=[]
         strRes=f"    def __init__(self,{','.join(self.vars)}):\n"
-        for var in self.vars:
-                strRes+=f"        self.{var}={var}\n"    
+        
+        for i,var in enumerate(self.vars,start=1):
+            if self.isSuper:
+                if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_Inheritance{i}").isChecked():
+                    strSuperVars.append(var)
+                # strRes+=f"        super().__init__({var})"
+                else:
+                    strSelfVars+=f"        self.{var}={var}\n"
+
+        strRes+="        super().__init__("+",".join(strSuperVars)+")\n"
+        strRes+=strSelfVars 
         self.createSetGet(strRes)
     
     def createSetGet(self,strRes):
@@ -217,25 +237,26 @@ class Ui_MainWindow(object):
         for i in range(1,len(self.vars)+1):
             txt=self.MainWindow.findChild(QtWidgets.QLineEdit, f"lineEdit_varName{i}").text()
 
-            #create the setter
-            setName=f"{isPrivateMethods}set{txt.capitalize()}"
-            strRes+=f"\n    def {setName}(self,{txt}):\n"
-            if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                strRes+=f"        self.__{txt}={txt}\n"
-            else:
-                strRes+=f"        self.{txt.capitalize()}={txt}\n"
+            if not self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_Inheritance{i}").isChecked():
+                #create the setter
+                setName=f"{isPrivateMethods}set{txt.capitalize()}"
+                strRes+=f"\n    def {setName}(self,{txt}):\n"
+                if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
+                    strRes+=f"        self.__{txt}={txt}\n"
+                else:
+                    strRes+=f"        self.{txt.capitalize()}={txt}\n"
 
-            #create the getter
-            getName=f"{isPrivateMethods}get{txt.capitalize()}"
-            strRes+=f"\n    def {getName}(self):\n"
+                #create the getter
+                getName=f"{isPrivateMethods}get{txt.capitalize()}"
+                strRes+=f"\n    def {getName}(self):\n"
 
-            if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
-                strRes+=f"        return self.__{txt}\n"
-            else:
-                strRes+=f"        return self.{txt.capitalize()}\n"
+                if self.MainWindow.findChild(QtWidgets.QCheckBox, f"checkBox_valPrivete{i}").isChecked():
+                    strRes+=f"        return self.__{txt}\n"
+                else:
+                    strRes+=f"        return self.{txt.capitalize()}\n"
+                
+                #create the property
+                strRes+=f"    {txt}=property({getName},{setName})\n"
             
-            #create the property
-            strRes+=f"    {txt}=property({getName},{setName})\n"
-            
-            self.clipBoard.setText(strRes) #add to clipboard
+        self.clipBoard.setText(strRes) #add to clipboard
         
